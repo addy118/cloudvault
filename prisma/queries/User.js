@@ -11,9 +11,8 @@ class User {
       console.error("Error creating user: ", error.stack);
       if (error.code === "P2002") {
         // Handling unique constraint violation
-        throw new Error(
-          // "A user with this email, phone or username already exists."
-        );
+        throw new Error();
+        // "A user with this email, phone or username already exists."
       }
       throw new Error("Failed to create user.");
     }
@@ -51,6 +50,8 @@ class User {
           email: true,
           password: true,
           createdAt: true,
+          files: true,
+          folders: true,
         },
       });
       return user;
@@ -71,6 +72,8 @@ class User {
           // phone: true,
           email: true,
           createdAt: true,
+          folders: true,
+          files: true,
         },
       });
       return user;
@@ -105,7 +108,7 @@ class User {
       throw new Error("Failed to fetch ID by username.");
     }
   }
-  
+
   static async changeEmail(userId, email) {
     try {
       await db.user.update({

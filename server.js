@@ -20,6 +20,8 @@ const { PORT } = process.env;
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
+app.use("/file", fileRouter);
+app.use("/folder", folderRouter);
 
 app.use((err, req, res, next) => {
   console.error(err.message);
