@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import UserPic from "@/components/UserPic";
 
 export default function ProfilePage() {
   const { user: currUser } = useAuth();
@@ -185,31 +186,32 @@ export default function ProfilePage() {
 
   if (isLoading && !user) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-[#222831] text-[#EEEEEE]">
         Loading profile...
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-8">
-      <Card className="glass-dark border shadow-lg">
+    <div className="container mx-auto max-w-3xl bg-[#222831] px-4 py-8 text-[#EEEEEE]">
+      <Card className="border-[#393E46] bg-[#222831] shadow-lg">
         <CardHeader className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <div>
-            <CardTitle className="gradient-text text-2xl">Profile</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl text-[#FFD369]">Profile</CardTitle>
+            <CardDescription className="text-[#EEEEEE]/70">
               View and edit your personal information
             </CardDescription>
           </div>
-          <Avatar className="h-20 w-20 border">
-            <AvatarImage src={user?.avatar || ""} alt={user?.name} />
-            <AvatarFallback>{getInitials(user?.name)}</AvatarFallback>
+          <Avatar className="h-20 w-20 border border-[#393E46] bg-[#393E46]">
+            <UserPic name={getInitials(user?.name)} />
           </Avatar>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 p-6">
           {editableFields.map((field) => (
             <div key={field.id} className="space-y-1">
-              <div className="text-sm font-medium">{field.label}</div>
+              <div className="text-sm font-medium text-[#FFD369]">
+                {field.label}
+              </div>
               <div className="flex items-center justify-between gap-4">
                 {editingField === field.id ? (
                   <div className="flex-1">
@@ -220,10 +222,13 @@ export default function ProfilePage() {
                       placeholder={`Enter your ${field.label.toLowerCase()}`}
                       disabled={isLoading}
                       autoFocus
+                      className="border-[#393E46] bg-[#222831] text-[#EEEEEE] focus:border-[#FFD369] focus:ring-[#FFD369]/50"
                     />
                   </div>
                 ) : (
-                  <div className="flex-1 py-2">{user?.[field.id]}</div>
+                  <div className="flex-1 py-2 text-[#EEEEEE]">
+                    {user?.[field.id]}
+                  </div>
                 )}
                 <div className="flex gap-2">
                   {editingField === field.id ? (
@@ -232,6 +237,7 @@ export default function ProfilePage() {
                         size="sm"
                         onClick={() => handleSubmit(field.id)}
                         disabled={isLoading}
+                        className="border-none bg-[#FFD369] text-[#222831] hover:bg-[#FFD369]/90"
                       >
                         <Check className="h-4 w-4" />
                       </Button>
@@ -240,6 +246,7 @@ export default function ProfilePage() {
                         variant="outline"
                         onClick={handleCancel}
                         disabled={isLoading}
+                        className="border-[#393E46] bg-transparent text-[#EEEEEE] hover:bg-[#393E46] hover:text-[#FFD369]"
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -250,17 +257,22 @@ export default function ProfilePage() {
                       variant="ghost"
                       onClick={() => handleEdit(field.id, user?.[field.id])}
                       disabled={isLoading}
+                      className="text-[#EEEEEE] hover:bg-[#393E46] hover:text-[#FFD369]"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
               </div>
-              <div className="border-b pt-2"></div>
+              <div className="border-b border-[#393E46] pt-2"></div>
             </div>
           ))}
           <div className="pt-4">
-            <Button variant="outline" onClick={handleEditPass}>
+            <Button
+              variant="outline"
+              onClick={handleEditPass}
+              className="border-[#393E46] bg-transparent text-[#EEEEEE] hover:bg-[#393E46] hover:text-[#FFD369]"
+            >
               <Lock className="mr-2 h-4 w-4" />
               Change Password
             </Button>
@@ -270,11 +282,12 @@ export default function ProfilePage() {
 
       {/* change password dialog */}
       <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
-        <DialogContent className="glass-dark border"></DialogContent>
-        <DialogContent>
+        <DialogContent className="border-[#393E46] bg-[#222831] text-[#EEEEEE]">
           <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-[#FFD369]">
+              Change Password
+            </DialogTitle>
+            <DialogDescription className="text-[#EEEEEE]/70">
               Enter your current password and a new password to update your
               credentials.
             </DialogDescription>
@@ -285,44 +298,59 @@ export default function ProfilePage() {
             className="space-y-4 py-4"
           >
             <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
+              <Label htmlFor="currentPassword" className="text-[#EEEEEE]">
+                Current Password
+              </Label>
               <Input
                 id="currentPassword"
                 type="password"
                 value={passwordData.currentPassword}
                 onChange={handlePasswordChange}
                 disabled={isChangingPassword}
+                className="border-[#393E46] bg-[#222831] text-[#EEEEEE] focus:border-[#FFD369] focus:ring-[#FFD369]/50"
               />
               {passwordErrors.currentPassword && (
-                <p className="text-sm">{passwordErrors.currentPassword}</p>
+                <p className="text-sm text-red-400">
+                  {passwordErrors.currentPassword}
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword" className="text-[#EEEEEE]">
+                New Password
+              </Label>
               <Input
                 id="newPassword"
                 type="password"
                 value={passwordData.newPassword}
                 onChange={handlePasswordChange}
                 disabled={isChangingPassword}
+                className="border-[#393E46] bg-[#222831] text-[#EEEEEE] focus:border-[#FFD369] focus:ring-[#FFD369]/50"
               />
               {passwordErrors.newPassword && (
-                <p className="text-sm">{passwordErrors.newPassword}</p>
+                <p className="text-sm text-red-400">
+                  {passwordErrors.newPassword}
+                </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword" className="text-[#EEEEEE]">
+                Confirm New Password
+              </Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 value={passwordData.confirmPassword}
                 onChange={handlePasswordChange}
                 disabled={isChangingPassword}
+                className="border-[#393E46] bg-[#222831] text-[#EEEEEE] focus:border-[#FFD369] focus:ring-[#FFD369]/50"
               />
               {passwordErrors.confirmPassword && (
-                <p className="text-sm">{passwordErrors.confirmPassword}</p>
+                <p className="text-sm text-red-400">
+                  {passwordErrors.confirmPassword}
+                </p>
               )}
             </div>
 
@@ -332,14 +360,19 @@ export default function ProfilePage() {
                 variant="outline"
                 onClick={() => setPasswordDialogOpen(false)}
                 disabled={isChangingPassword}
+                className="border-[#393E46] bg-transparent text-[#EEEEEE] hover:bg-[#393E46] hover:text-[#FFD369]"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isChangingPassword}>
+              <Button
+                type="submit"
+                disabled={isChangingPassword}
+                className="border-none bg-[#FFD369] text-[#222831] hover:bg-[#FFD369]/90"
+              >
                 {isChangingPassword ? (
                   <div className="flex items-center justify-center">
                     <span className="mr-2">Updating</span>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></span>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#222831] border-t-transparent"></span>
                   </div>
                 ) : (
                   "Update Password"

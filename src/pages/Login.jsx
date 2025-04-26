@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -40,11 +39,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <Card className="w-full max-w-md">
+    <div className="flex items-center justify-center bg-[#222831] p-4 text-[#EEEEEE]">
+      <Card className="w-full max-w-md border-[#393E46] bg-[#222831] text-[#EEEEEE] shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl">Log In</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl text-[#FFD369]">Log In</CardTitle>
+          <CardDescription className="text-[#EEEEEE]/70">
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
@@ -52,7 +51,9 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="data">Username or Email</Label>
+              <Label htmlFor="data" className="text-[#EEEEEE]">
+                Username or Email
+              </Label>
 
               <Input
                 id="data"
@@ -61,6 +62,7 @@ export default function LoginPage() {
                 value={formData.data}
                 onChange={handleChange}
                 disabled={loading}
+                className="border-[#393E46] bg-[#222831] text-[#EEEEEE] focus:border-[#FFD369] focus:ring-[#FFD369]/50"
               />
 
               {loginErrors.data &&
@@ -73,10 +75,12 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-[#EEEEEE]">
+                  Password
+                </Label>
                 <a
                   href="/forgot-password"
-                  className="text-primary text-sm hover:underline"
+                  className="text-sm text-[#FFD369] hover:underline"
                 >
                   Forgot password?
                 </a>
@@ -89,6 +93,7 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading}
+                className="border-[#393E46] bg-[#222831] text-[#EEEEEE] focus:border-[#FFD369] focus:ring-[#FFD369]/50"
               />
 
               {loginErrors.password &&
@@ -101,13 +106,13 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              className="w-full cursor-pointer border border-zinc-200 bg-zinc-200 text-black transition-colors duration-300 hover:border-zinc-300 hover:bg-zinc-300 active:border-zinc-200 active:bg-zinc-200 active:text-black"
+              className="w-full cursor-pointer border-none bg-[#FFD369] text-[#222831] hover:bg-[#FFD369]/90"
               disabled={loading}
             >
               {loading ? (
                 <div className="flex items-center justify-center">
                   <span className="mr-2">Logging in</span>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-800 border-t-transparent"></span>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#222831] border-t-transparent"></span>
                 </div>
               ) : (
                 "Log In"
@@ -117,9 +122,9 @@ export default function LoginPage() {
         </CardContent>
 
         <CardFooter className="flex justify-center">
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-[#EEEEEE]/70">
             Don't have an account?{" "}
-            <Link to={`/signup`} className="text-primary hover:underline">
+            <Link to={`/signup`} className="text-[#FFD369] hover:underline">
               Sign up
             </Link>
           </p>

@@ -36,18 +36,22 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <Card className="w-full max-w-md">
+    <div className="flex items-center justify-center bg-[#222831] p-4 text-[#EEEEEE]">
+      <Card className="w-full max-w-md border-[#393E46] bg-[#222831] text-[#EEEEEE] shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl">Sign Up</CardTitle>
-          <CardDescription>Create a new account</CardDescription>
+          <CardTitle className="text-2xl text-[#FFD369]">Sign Up</CardTitle>
+          <CardDescription className="text-[#EEEEEE]/70">
+            Create a new account
+          </CardDescription>
         </CardHeader>
 
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* name */}
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name" className="text-[#EEEEEE]">
+                Name
+              </Label>
 
               <Input
                 id="name"
@@ -56,6 +60,7 @@ export default function SignupPage() {
                 value={formData.name}
                 onChange={handleChange}
                 disabled={loading}
+                className="border-[#393E46] bg-[#222831] text-[#EEEEEE] focus:border-[#FFD369] focus:ring-[#FFD369]/50"
               />
 
               {signupErrors.name &&
@@ -68,7 +73,9 @@ export default function SignupPage() {
 
             {/* username */}
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username" className="text-[#EEEEEE]">
+                Username
+              </Label>
 
               <Input
                 id="username"
@@ -77,6 +84,7 @@ export default function SignupPage() {
                 value={formData.username}
                 onChange={handleChange}
                 disabled={loading}
+                className="border-[#393E46] bg-[#222831] text-[#EEEEEE] focus:border-[#FFD369] focus:ring-[#FFD369]/50"
               />
 
               {signupErrors.username &&
@@ -87,30 +95,11 @@ export default function SignupPage() {
                 ))}
             </div>
 
-            {/* phone */}
-            {/* <div className="space-y-2">
-              <Label htmlFor="name">Phone</Label>
-
-              <Input
-                id="phone"
-                placeholder="John Doe"
-                required
-                value={formData.phone}
-                onChange={handleChange}
-                disabled={loading}
-              />
-
-              {signupErrors.phone &&
-                signupErrors.phone.map((err, i) => (
-                  <p key={i} className="text-red-400">
-                    {err}
-                  </p>
-                ))}
-            </div> */}
-
             {/* email */}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-[#EEEEEE]">
+                Email
+              </Label>
 
               <Input
                 id="email"
@@ -120,6 +109,7 @@ export default function SignupPage() {
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading}
+                className="border-[#393E46] bg-[#222831] text-[#EEEEEE] focus:border-[#FFD369] focus:ring-[#FFD369]/50"
               />
 
               {signupErrors.email &&
@@ -132,7 +122,9 @@ export default function SignupPage() {
 
             {/* password */}
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-[#EEEEEE]">
+                Password
+              </Label>
 
               <Input
                 id="password"
@@ -141,6 +133,7 @@ export default function SignupPage() {
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading}
+                className="border-[#393E46] bg-[#222831] text-[#EEEEEE] focus:border-[#FFD369] focus:ring-[#FFD369]/50"
               />
 
               {signupErrors.password &&
@@ -153,13 +146,13 @@ export default function SignupPage() {
 
             <Button
               type="submit"
-              className="w-full cursor-pointer border border-zinc-200 bg-zinc-200 text-black transition-colors duration-300 hover:border-zinc-300 hover:bg-zinc-300 active:border-zinc-200 active:bg-zinc-200 active:text-black"
+              className="w-full cursor-pointer border-none bg-[#FFD369] text-[#222831] hover:bg-[#FFD369]/90"
               disabled={loading}
             >
               {loading ? (
                 <div className="flex items-center justify-center">
                   <span className="mr-2">Creating account</span>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-800 border-t-transparent"></span>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#222831] border-t-transparent"></span>
                 </div>
               ) : (
                 "Create Account"
@@ -169,9 +162,9 @@ export default function SignupPage() {
         </CardContent>
 
         <CardFooter className="flex justify-center">
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-[#EEEEEE]/70">
             Already have an account?{" "}
-            <Link to={`/login`} className="text-primary hover:underline">
+            <Link to={`/login`} className="text-[#FFD369] hover:underline">
               Login
             </Link>
           </p>

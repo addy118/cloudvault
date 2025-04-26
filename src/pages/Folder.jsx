@@ -217,7 +217,9 @@ export default function CloudVault() {
         .then(() => toast.success("Link copied to clipboard"))
         .catch(() => toast.success("Failed to copy link"));
     } else {
-      toast.success(`Link for ${file.name}.${file.type} would be copied to clipboard`);
+      toast.success(
+        `Link for ${file.name}.${file.type} would be copied to clipboard`
+      );
     }
   };
 
@@ -266,15 +268,15 @@ export default function CloudVault() {
         <div className="mb-6 flex flex-wrap gap-4">
           <Button
             onClick={() => setUploadDialogOpen(true)}
-            className="flex items-center gap-2 border-none bg-[#FFD369] font-medium text-[#222831] hover:bg-[#FFD369]/90"
+            className="flex items-center gap-2 border-none bg-[#FFD369] font-medium text-[#222831] hover:bg-[#FFD369]/70 active:scale-95"
           >
             <Upload size={16} />
             Upload File
           </Button>
           <Button
             onClick={() => setFolderDialogOpen(true)}
-            variant="outline"
-            className="flex items-center gap-2 border-[#393E46] text-[#EEEEEE] hover:bg-[#393E46] hover:text-[#FFD369]"
+            // variant="outline"
+            className="flex items-center gap-2 border-[#393E46] bg-[#EEEEEE] text-[#222831] transition-all hover:bg-[#EEEEEE]/70 active:scale-95"
           >
             <FolderPlus size={16} />
             Create Folder

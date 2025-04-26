@@ -14,7 +14,7 @@ export default function App() {
   }, [isAuth, navigate]);
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center bg-[#222831] text-[#EEEEEE]">
       {!isAuth && <LandingPage />}
     </div>
   );
