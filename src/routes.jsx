@@ -9,6 +9,7 @@ import Layout from "./components/Layout";
 import Profile from "./pages/Profile";
 import SignupPage from "./pages/SignUp";
 import ErrorPage from "./pages/ErrorPage";
+import CloudVault from "./pages/Folder";
 
 const router = createBrowserRouter([
   {
@@ -26,14 +27,9 @@ const router = createBrowserRouter([
       {
         element: <ProtectedRoute />,
         children: [
-          {
-            path: "home",
-            element: <Home />,
-          },
-          {
-            path: "profile",
-            element: <Profile />,
-          },
+          // { path: "root", element: <CloudVault /> },
+          { path: "home", element: <CloudVault /> },
+          { path: "profile", element: <Profile /> },
         ],
       },
     ],
