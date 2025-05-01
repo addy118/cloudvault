@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const authRouter = require("./routes/authRouter");
 const userRouter = require("./routes/userRouter");
+const fileRouter = require("./routes/fileRouter");
+const folderRouter = require("./routes/folderRouter");
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));

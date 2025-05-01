@@ -3,7 +3,7 @@ const db = require("../../config/prismaClient");
 class Folder {
   static async create(name, parentId, userId) {
     try {
-      await db.folder.create({
+      return await db.folder.create({
         data: {
           name,
           parentId,
@@ -24,7 +24,7 @@ class Folder {
 
   static async createRoot(userId) {
     try {
-      await db.folder.create({
+      return await db.folder.create({
         data: {
           name: "Root",
           userId: userId,
@@ -33,6 +33,23 @@ class Folder {
     } catch (error) {
       throw new Error(
         `Error creating root folder for user ID ${userId}: ${error.message}`
+      );
+    }
+  }
+
+  static async getRootId(userId) {
+    try {
+      const rootId = await db.folder.findFirst({
+        where: { userId },
+        select: { id: true },
+      });
+      if (!rootId) {
+        throw new Error(`Root folder ID not found for user ID ${userId}.`);
+      }
+      return rootId;
+    } catch (error) {
+      throw new Error(
+        `Error retrieving root folder ID for user ID ${userId}: ${error.message}`
       );
     }
   }

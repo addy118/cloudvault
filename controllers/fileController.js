@@ -2,9 +2,10 @@ const File = require("../prisma/queries/File");
 const supabase = require("../config/supabase");
 const Supabase = require("../prisma/queries/Supabase");
 
+// upload file form
 exports.getUpload = (req, res) => {
   const { folderId } = req.params;
-  res.render("fileForm", { title: "Upload Files", folderId: folderId });
+  // res.render("fileForm", { title: "Upload Files", folderId: folderId });
 };
 
 exports.postUpload = async (req, res, next) => {
@@ -13,7 +14,7 @@ exports.postUpload = async (req, res, next) => {
   console.log("file uploaded");
 
   if (!req.files || req.files.length === 0) {
-    return res.status(400).send("No files uploaded!");
+    return res.status(400).json({ msg: "No files uploaded!" });
   }
 
   try {
@@ -74,12 +75,13 @@ exports.postUpload = async (req, res, next) => {
       )
     );
 
-    res.redirect(`/${folderId}/folder`);
+    // res.redirect(`/${folderId}/folder`);
+    res.json({ msg: "File uploaded successfully!" });
   } catch (err) {
     console.error("Error uploading files:", err);
-    res
-      .status(500)
-      .send(`Failed to upload files. ${err.message} Please try again!`);
+    res.status(500).json({
+      msg: `Failed to upload files. ${err.message} Please try again!`,
+    });
   }
 };
 
@@ -96,7 +98,7 @@ exports.postDownloadFile = async (req, res) => {
 
     if (error) {
       console.error("Error downloading file:", error);
-      return res.status(500).send("Failed to download file.");
+      return res.status(500).json({ msg: "Failed to download file." });
     }
 
     res.setHeader("Content-Type", data.type);
@@ -112,11 +114,12 @@ exports.postDownloadFile = async (req, res) => {
     // write the buffer to the response
     res.write(bufferData);
     res.end();
+    // res.json({ msg: "File downloaded successfully!" });
   } catch (err) {
     console.error("Error: ", err.message);
     res
       .status(500)
-      .send(`Failed to process the download request. ${err.message}`);
+      .json({ msg: `Failed to process the download request: ${err.message}` });
   }
 };
 
@@ -126,10 +129,11 @@ exports.postDeleteFile = async (req, res) => {
   try {
     await Supabase.removeFile(fileId, Number(req.user.id));
     await File.deleteById(fileId);
-    res.redirect(`/${folderId}/folder`);
+    // res.redirect(`/${folderId}/folder`);
+    res.json({ msg: "File deleted successfully!" });
   } catch (err) {
     console.error("Error: ", err.message);
     console.error("Stack: ", err.stack);
-    res.status(500).end(`Failed to remove files. err.message`);
+    res.status(500).json({ msg: `Failed to remove files: ${err.message}` });
   }
 };

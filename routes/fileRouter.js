@@ -8,7 +8,7 @@ const {
 const { uploadFiles, multerError } = require("../config/multer");
 const fileRouter = Router();
 
-fileRouter.get("/:folderId/upload", getUpload);
+// fileRouter.get("/:folderId/upload", getUpload);
 fileRouter.post("/:folderId/upload", uploadFiles, multerError, postUpload);
 fileRouter.post("/file/:userId/:folderId/:fileId/download", postDownloadFile);
 

@@ -2,6 +2,7 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../prisma/queries/User");
+const Folder = require("../prisma/queries/Folder");
 const { ACCESS_TOKEN, REFRESH_TOKEN } = process.env;
 
 exports.postSignup = async (req, res) => {
@@ -16,7 +17,10 @@ exports.postSignup = async (req, res) => {
       email,
       hashedPassword
     );
-    res.status(200).json({ user });
+
+    const root = await Folder.createRoot(Number(user.id));
+
+    res.status(200).json({ ...user, rootId: root.id });
   } catch (error) {
     if (error.code === "P2002") {
       return res.status(400).json({
@@ -39,7 +43,12 @@ exports.postLogin = async (req, res) => {
     const matched = await bcrypt.compare(password, user.password);
     if (!matched) return res.status(400).send("Invalid password!");
 
-    const { accessToken, refreshToken } = generateTokens(user);
+    const root = await Folder.getRootId(user.id);
+
+    const { accessToken, refreshToken } = generateTokens({
+      ...user,
+      rootId: root.id,
+    });
 
     // send set-cookie header with response
     res.cookie("refreshCookie", refreshToken, {
@@ -116,7 +125,12 @@ exports.refresh = async (req, res) => {
       return res.status(404).json({ msg: "User not found" });
     }
 
-    const { accessToken, refreshToken } = generateTokens(user);
+    const root = await Folder.getRootId(user.id);
+
+    const { accessToken, refreshToken } = generateTokens({
+      ...user,
+      rootId: root.id,
+    });
 
     res.cookie("refreshCookie", refreshToken, {
       httpOnly: true,
@@ -144,6 +158,7 @@ const generateTokens = (user) => {
   const accessToken = jwt.sign(
     {
       id: user.id,
+      rootId: user.rootId,
       name: user.name,
       username: user.username,
       // phone: user.phone,
@@ -153,6 +168,7 @@ const generateTokens = (user) => {
     ACCESS_TOKEN,
     { expiresIn: "10m" }
   );
+  // console.log(accessToken);
 
   const refreshToken = jwt.sign({ id: user.id }, REFRESH_TOKEN, {
     expiresIn: "10d",

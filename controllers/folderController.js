@@ -5,7 +5,7 @@ exports.getFolder = async (req, res, next) => {
   const { folderId } = req.params;
 
   const folderDetails = await Folder.getItemsById(Number(folderId));
-  console.log("folder " + folderId + " rendered!");
+  // console.log("folder " + folderId + " rendered!");
 
   if (!folderDetails) {
     const err = new Error("Folder Not Found");
@@ -13,36 +13,39 @@ exports.getFolder = async (req, res, next) => {
     return next(err);
   }
 
-  res.render("folder", {
-    title: folderDetails.name,
-    views: req.session.view,
-    root: folderDetails,
-    folderId: folderDetails.id,
-  });
+  res.json(folderDetails);
 };
 
-exports.getNewFolder = (req, res) => {
-  const { folderId } = req.params;
+// create folder form
+// exports.getNewFolder = (req, res) => {
+//   const { folderId } = req.params;
 
-  res.render("folderForm", {
-    title: "New Folder",
-    parentId: folderId,
-  });
-};
+//   res.render("folderForm", {
+//     title: "New Folder",
+//     parentId: folderId,
+//   });
+// };
 
 exports.postNewFolder = (req, res) => {
-  const { folderId } = req.params;
-  const { folderName } = req.body;
+  try {
+    // current folderId
+    const { folderId } = req.params;
+    const { folderName, userId } = req.body;
 
-  Folder.create(folderName, Number(folderId), req.user.id);
-  res.redirect(`/${folderId}/folder`);
+    Folder.create(folderName, Number(folderId), userId);
+    // res.redirect(`/${folderId}/folder`);
+    res.json({ msg: "Folder created successfully!" });
+  } catch (error) {
+    // send user-friendly error message
+    res.status(400).json({ msg: error.message });
+  }
 };
 
 exports.postDeleteFolder = async (req, res) => {
   const folderId = Number(req.params.folderId);
   const userId = Number(req.user.id);
 
-  const parent = await Folder.getParent(folderId);
+  // const parent = await Folder.getParent(folderId);
 
   try {
     // delete the contents of the folder (files and subfolders)
@@ -52,11 +55,12 @@ exports.postDeleteFolder = async (req, res) => {
     await Folder.deleteById(folderId);
 
     // redirect to the parent folder
-    res.redirect(`/${parent.id}/folder`);
+    // res.redirect(`/${parent.id}/folder`);
+    res.json({ msg: "Folder deleted successfully!" });
   } catch (err) {
     console.error("Error deleting the folder: ", err.message);
     console.error("Stack: ", err.stack);
-    res.status(500).send("Failed to remove folder and its files.");
+    res.status(500).json({ msg: "Failed to remove folder and its files." });
   }
 };
 

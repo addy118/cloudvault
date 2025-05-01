@@ -7,10 +7,9 @@ const {
 } = require("../controllers/folderController");
 const folderRouter = Router();
 
-folderRouter.post("/folder/:folderId/delete", postDeleteFolder);
-folderRouter.get("/:folderId/folder", getFolder);
-
-folderRouter.get("/:folderId/create", getNewFolder);
-folderRouter.post("/:folderId/create", postNewFolder);
+// folderRouter.get("/:folderId/create", getNewFolder);
+folderRouter.get("/:folderId", getFolder);
+folderRouter.delete("/:folderId", postDeleteFolder);
+folderRouter.post("/:folderId", postNewFolder);
 
 module.exports = folderRouter;
