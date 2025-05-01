@@ -134,7 +134,7 @@ exports.refresh = async (req, res) => {
 
     res.cookie("refreshCookie", refreshToken, {
       httpOnly: true,
-      secure: true, // true in production (only send over https)
+      secure: false, // true in production (only send over https)
       sameSite: "None",
     });
 
