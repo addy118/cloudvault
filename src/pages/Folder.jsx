@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ChevronRight,
   Folder,
@@ -27,172 +27,99 @@ import {
 } from "@/components/ui/breadcrumb";
 import { formatFileSize, formatDate, getFileIcon } from "../utils/utils";
 import { toast } from "sonner";
+import api from "@/axiosInstance";
+import { useAuth } from "@/authProvider";
 
 export default function CloudVault() {
-  // Initial response object structure - directly the folder object
-  const initialResponse = {
-    id: 34,
-    name: "Root",
-    parentId: null,
-    createdAt: "2025-01-08T11:55:00.835Z",
-    updatedAt: "2025-01-08T11:55:00.835Z",
-    userId: 10,
-    url: null,
-    subFolders: [
-      {
-        id: 37,
-        name: "demo",
-        parentId: 34,
-        createdAt: "2025-04-18T17:30:22.017Z",
-        updatedAt: "2025-04-18T17:30:22.017Z",
-        userId: 10,
-        url: null,
-      },
-    ],
-    files: [
-      {
-        id: 122,
-        name: "wpmh-qb-ise-ii",
-        folderId: 34,
-        type: "pdf",
-        size: 393762,
-        createdAt: "2025-04-18T17:30:15.005Z",
-        updatedAt: "2025-04-18T17:30:15.005Z",
-        userId: 10,
-        url: "https://gqpjlndplnbrfujevaon.supabase.co/storage/v1/object/public/files/10/34/wpmh-qb-ise-ii.pdf?download",
-      },
-    ],
-  };
+  const { user } = useAuth();
+  const [currentFolder, setCurrentFolder] = useState(null);
 
-  // State for current folder and navigation path
-  const [currentFolder, setCurrentFolder] = useState(initialResponse);
+  useEffect(() => {
+    const fetchRootDetails = async () => {
+      try {
+        const rootRes = await api.get(`/folder/${user.rootId}`);
+        console.log(rootRes.data);
+        setCurrentFolder(rootRes.data);
+      } catch (error) {
+        console.error("Error fetching root folder details:", error);
+      }
+    };
+
+    fetchRootDetails();
+  }, []);
+
   const [navigationPath, setNavigationPath] = useState([
-    { id: 34, name: "Root" },
+    { id: user.rootId, name: "Root" },
   ]);
 
-  // State for dialogs
+  // state for dialogs
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
 
-  // State for form inputs
+  // state for form inputs
   const [newFolderName, setNewFolderName] = useState("");
   const [selectedFiles, setSelectedFiles] = useState(null);
 
-  // Navigate to a folder
-  const navigateToFolder = (folder) => {
-    // In a real app, this would fetch the folder contents from the server
-    // For this demo, we'll simulate it with mock data
-    const mockSubfolder = {
-      id: folder.id,
-      name: folder.name,
-      parentId: folder.parentId,
-      createdAt: folder.createdAt,
-      updatedAt: folder.updatedAt,
-      userId: 10,
-      url: null,
-      subFolders: [
-        // Mock subfolders
-        {
-          id: folder.id + 100,
-          name: "Subfolder in " + folder.name,
-          parentId: folder.id,
-          createdAt: "2025-04-19T10:30:22.017Z",
-          updatedAt: "2025-04-19T10:30:22.017Z",
-          userId: 10,
-          url: null,
-        },
-      ],
-      files: [
-        // Mock files
-        {
-          id: folder.id + 200,
-          name: "Document in " + folder.name,
-          folderId: folder.id,
-          type: "pdf",
-          size: 250000,
-          createdAt: "2025-04-19T11:15:15.005Z",
-          updatedAt: "2025-04-19T11:15:15.005Z",
-          userId: 10,
-          url: "https://example.com/document.pdf",
-        },
-      ],
-    };
+  // navigate to a folder
+  const navigateToFolder = async (folder) => {
+    const folderDetails = await api.get(`/folder/${folder.id}`);
+    setCurrentFolder(folderDetails);
 
-    setCurrentFolder(mockSubfolder);
+    // append to the navPath array
     setNavigationPath([
       ...navigationPath,
       { id: folder.id, name: folder.name },
     ]);
   };
 
-  // Navigate to a specific path level
-  const navigateToPath = (index) => {
+  // navigate to a specific path level
+  const navigateToPath = async (index) => {
     if (index === navigationPath.length - 1) return;
 
+    // shrink to the path until newly selected folder only
     const newPath = navigationPath.slice(0, index + 1);
     setNavigationPath(newPath);
 
-    // In a real app, this would fetch the folder contents from the server
-    // For this demo, we'll just go back to the initial response if we're at root
     if (index === 0) {
-      setCurrentFolder(initialResponse);
+      // just get the root folder and set it as currFolder
+      const rootRes = await api.get(`/folder/${user.rootId}`);
+      setCurrentFolder(rootRes.data);
     } else {
-      // Mock response for intermediate folders
+      // get the selected folder obj {id, name}
       const folder = newPath[index];
-      const mockFolder = {
-        id: folder.id,
-        name: folder.name,
-        parentId: index > 0 ? newPath[index - 1].id : null,
-        createdAt: "2025-04-18T17:30:22.017Z",
-        updatedAt: "2025-04-18T17:30:22.017Z",
-        userId: 10,
-        url: null,
-        subFolders: [
-          {
-            id: folder.id + 100,
-            name: "Subfolder in " + folder.name,
-            parentId: folder.id,
-            createdAt: "2025-04-19T10:30:22.017Z",
-            updatedAt: "2025-04-19T10:30:22.017Z",
-            userId: 10,
-            url: null,
-          },
-        ],
-        files: [
-          {
-            id: folder.id + 200,
-            name: "Document in " + folder.name,
-            folderId: folder.id,
-            type: "pdf",
-            size: 250000,
-            createdAt: "2025-04-19T11:15:15.005Z",
-            updatedAt: "2025-04-19T11:15:15.005Z",
-            userId: 10,
-            url: "https://example.com/document.pdf",
-          },
-        ],
-      };
-      setCurrentFolder(mockFolder);
+
+      // get the folder details using folder.id
+      const folderRes = await api.get(`/folder/${folder.id}`);
+      setCurrentFolder(folderRes);
     }
   };
 
   // Handle file upload
-  const handleUploadSubmit = (e) => {
+  const handleUploadSubmit = async (e) => {
     e.preventDefault();
     // In a real app, this would upload the files to the server
+    await api.post();
     toast.success(
       `Would upload ${selectedFiles ? selectedFiles.length : 0} files to folder ID: ${navigationPath[navigationPath.length - 1].id}`
     );
     setUploadDialogOpen(false);
     setSelectedFiles(null);
+    ``;
   };
 
-  // Handle folder creation
-  const handleCreateFolderSubmit = (e) => {
+  // handle folder creation
+  const handleCreateFolderSubmit = async (e) => {
     e.preventDefault();
     // In a real app, this would create a new folder on the server
+    const currFolderId = navigationPath[navigationPath.length - 1].id;
+    const newFolder = await api.post(`/folder/${currFolderId}`, {
+      folderName: newFolderName,
+      userId: user.id,
+    });
+
     toast.success(
-      `Would create folder "${newFolderName}" in folder ID: ${navigationPath[navigationPath.length - 1].id}`
+      // `Would create folder "${newFolderName}" in folder ID: ${navigationPath[navigationPath.length - 1].id}`
+      `Folder "${newFolderName}" created in folder ID: ${navigationPath[navigationPath.length - 1].id}`
     );
     setFolderDialogOpen(false);
     setNewFolderName("");
@@ -234,13 +161,6 @@ export default function CloudVault() {
   return (
     <div className="min-h-screen bg-[#222831] text-[#EEEEEE]">
       <div className="container mx-auto max-w-7xl p-4">
-        {/* <header className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-[#FFD369]">CloudVault</h1>
-          <p className="text-[#EEEEEE]/70">
-            Your secure cloud storage solution
-          </p>
-        </header> */}
-
         {/* Breadcrumb Navigation */}
         <Breadcrumb className="mb-6">
           <BreadcrumbList>
@@ -297,115 +217,115 @@ export default function CloudVault() {
                 </TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {/* Render subfolders */}
-              {currentFolder.subFolders &&
-                currentFolder.subFolders.map((folder) => (
-                  <TableRow
-                    key={`folder-${folder.id}`}
-                    className="border-b-[#393E46] hover:bg-[#393E46]/30"
-                  >
-                    <TableCell className="font-medium text-[#EEEEEE]">
-                      <div className="flex items-center gap-2">
-                        <Folder size={20} className="text-[#FFD369]" />
-                        <span
-                          className="cursor-pointer hover:text-[#FFD369]"
-                          onClick={() => navigateToFolder(folder)}
-                        >
-                          {folder.name}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-[#EEEEEE]/80">Folder</TableCell>
-                    <TableCell className="text-[#EEEEEE]/80">-</TableCell>
-                    <TableCell className="text-[#EEEEEE]/80">
-                      {formatDate(folder.updatedAt)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleCopyLink(folder)}
-                          title="Copy Link"
-                          className="text-[#EEEEEE] hover:bg-[#393E46]"
-                        >
-                          <Link size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(folder, "folder")}
-                          title="Delete"
-                          className="text-red-400 hover:bg-[#393E46]"
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {currentFolder?.subFolders?.map((folder) => (
+                <TableRow
+                  key={`folder-${folder.id}`}
+                  className="border-b-[#393E46] hover:bg-[#393E46]/30"
+                >
+                  <TableCell className="font-medium text-[#EEEEEE]">
+                    <div className="flex items-center gap-2">
+                      <Folder size={20} className="text-[#FFD369]" />
+                      <span
+                        className="cursor-pointer hover:text-[#FFD369]"
+                        onClick={() => navigateToFolder(folder)}
+                      >
+                        {folder.name}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-[#EEEEEE]/80">Folder</TableCell>
+                  <TableCell className="text-[#EEEEEE]/80">-</TableCell>
+                  <TableCell className="text-[#EEEEEE]/80">
+                    {formatDate(folder.updatedAt)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleCopyLink(folder)}
+                        title="Copy Link"
+                        className="text-[#EEEEEE] hover:bg-[#393E46]"
+                      >
+                        <Link size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(folder, "folder")}
+                        title="Delete"
+                        className="text-red-400 hover:bg-[#393E46]"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
 
               {/* Render files */}
-              {currentFolder.files &&
-                currentFolder.files.map((file) => (
-                  <TableRow
-                    key={`file-${file.id}`}
-                    className="border-b-[#393E46] hover:bg-[#393E46]/30"
-                  >
-                    <TableCell className="font-medium text-[#EEEEEE]">
-                      <div className="flex items-center gap-2">
-                        {getFileIcon(file.type)}
-                        <span>{file.name}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-[#EEEEEE]/80">
-                      {file.type.toUpperCase()}
-                    </TableCell>
-                    <TableCell className="text-[#EEEEEE]/80">
-                      {formatFileSize(file.size)}
-                    </TableCell>
-                    <TableCell className="text-[#EEEEEE]/80">
-                      {formatDate(file.updatedAt)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDownload(file)}
-                          title="Download"
-                          className="text-[#EEEEEE] hover:bg-[#393E46]"
-                        >
-                          <Download size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleCopyLink(file)}
-                          title="Copy Link"
-                          className="text-[#EEEEEE] hover:bg-[#393E46]"
-                        >
-                          <Link size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(file, "file")}
-                          title="Delete"
-                          className="text-red-400 hover:bg-[#393E46]"
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              {currentFolder?.files?.map((file) => (
+                <TableRow
+                  key={`file-${file.id}`}
+                  className="border-b-[#393E46] hover:bg-[#393E46]/30"
+                >
+                  <TableCell className="font-medium text-[#EEEEEE]">
+                    <div className="flex items-center gap-2">
+                      {getFileIcon(file.type)}
+                      <span>{file.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-[#EEEEEE]/80">
+                    {file.type.toUpperCase()}
+                  </TableCell>
+                  <TableCell className="text-[#EEEEEE]/80">
+                    {formatFileSize(file.size)}
+                  </TableCell>
+                  <TableCell className="text-[#EEEEEE]/80">
+                    {formatDate(file.updatedAt)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDownload(file)}
+                        title="Download"
+                        className="text-[#EEEEEE] hover:bg-[#393E46]"
+                      >
+                        <Download size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleCopyLink(file)}
+                        title="Copy Link"
+                        className="text-[#EEEEEE] hover:bg-[#393E46]"
+                      >
+                        <Link size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(file, "file")}
+                        title="Delete"
+                        className="text-red-400 hover:bg-[#393E46]"
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
 
               {/* Show message if folder is empty */}
-              {(!currentFolder.subFolders ||
-                currentFolder.subFolders.length === 0) &&
-                (!currentFolder.files || currentFolder.files.length === 0) && (
+              {(!currentFolder?.subFolders ||
+                currentFolder?.subFolders.length === 0) &&
+                (!currentFolder?.files ||
+                  currentFolder?.files?.length === 0) && (
                   <TableRow className="hover:bg-[#393E46]/30">
                     <TableCell
                       colSpan={5}

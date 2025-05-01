@@ -16,8 +16,8 @@ import { Link, useNavigate } from "react-router-dom";
 export default function LoginPage() {
   const { isAuth, login, loginErrors, loading } = useAuth();
   const [formData, setFormData] = useState({
-    data: "",
-    password: "",
+    data: "addy",
+    password: "Hello@18",
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
