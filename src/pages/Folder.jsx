@@ -62,8 +62,8 @@ export default function CloudVault() {
 
   // navigate to a folder
   const navigateToFolder = async (folder) => {
-    const folderDetails = await api.get(`/folder/${folder.id}`);
-    setCurrentFolder(folderDetails);
+    const folderDetailsRes = await api.get(`/folder/${folder.id}`);
+    setCurrentFolder(folderDetailsRes.data);
 
     // append to the navPath array
     setNavigationPath([
@@ -94,40 +94,61 @@ export default function CloudVault() {
     }
   };
 
-  // Handle file upload
-  const handleUploadSubmit = async (e) => {
-    e.preventDefault();
-    // In a real app, this would upload the files to the server
-    await api.post();
-    toast.success(
-      `Would upload ${selectedFiles ? selectedFiles.length : 0} files to folder ID: ${navigationPath[navigationPath.length - 1].id}`
-    );
-    setUploadDialogOpen(false);
-    setSelectedFiles(null);
-    ``;
-  };
-
   // handle folder creation
   const handleCreateFolderSubmit = async (e) => {
-    e.preventDefault();
-    // In a real app, this would create a new folder on the server
-    const currFolderId = navigationPath[navigationPath.length - 1].id;
-    const newFolder = await api.post(`/folder/${currFolderId}`, {
-      folderName: newFolderName,
-      userId: user.id,
-    });
+    try {
+      e.preventDefault();
+      // In a real app, this would create a new folder on the server
+      const currFolderId = navigationPath[navigationPath.length - 1].id;
+      const newFolderRes = await api.post(`/folder/${currFolderId}`, {
+        folderName: newFolderName,
+        userId: user.id,
+      });
 
-    toast.success(
-      // `Would create folder "${newFolderName}" in folder ID: ${navigationPath[navigationPath.length - 1].id}`
-      `Folder "${newFolderName}" created in folder ID: ${navigationPath[navigationPath.length - 1].id}`
-    );
-    setFolderDialogOpen(false);
-    setNewFolderName("");
+      toast.success(
+        // `Would create folder "${newFolderName}" in folder ID: ${navigationPath[navigationPath.length - 1].id}`
+        `Folder "${newFolderName}" created in folder ID: ${navigationPath[navigationPath.length - 1].id}`
+      );
+      
+      setFolderDialogOpen(false);
+      setNewFolderName("");
+    } catch (err) {
+      // gracefully catch the duplicate name error
+      toast.error(err?.response?.data?.msg);
+    }
+  };
+
+  // Handle file upload
+  const handleUploadSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      const currentFolder = navigationPath[navigationPath.length - 1];
+      console.log(currentFolder.id);
+
+      // FormData obj formation
+      const formData = new FormData();
+      formData.append("userId", user.id);
+      const filesArray = Array.from(selectedFiles);
+      console.log(filesArray);
+      filesArray.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      console.log(formData);
+
+      await api.post(`file/${currentFolder.id}`, formData);
+      toast.success(
+        `Uploaded ${filesArray ? filesArray.length : 0} files to folder ID: ${currentFolder.id}. Refresh to see!`
+      );
+      setUploadDialogOpen(false);
+      setSelectedFiles(null);
+    } catch (err) {
+      toast.error(err?.response?.data?.msg);
+    }
   };
 
   // Handle file download
   const handleDownload = (file) => {
-    // In a real app, this would download the file
     if (file.url) {
       window.open(file.url, "_blank");
     } else {
@@ -151,10 +172,12 @@ export default function CloudVault() {
   };
 
   // Handle delete
-  const handleDelete = (item, itemType) => {
-    // In a real app, this would delete the file or folder
+  const handleDelete = async (item, itemType) => {
     if (confirm(`Are you sure you want to delete this ${itemType}?`)) {
-      toast.success(`${itemType} "${item.name}" would be deleted`);
+      await api.delete(`/${itemType}/${item.id}`, { userId: user.id });
+      toast.success(
+        `${itemType} "${item.name}" deleted successfully! Please refresh to see changes`
+      );
     }
   };
 
@@ -220,6 +243,7 @@ export default function CloudVault() {
 
             <TableBody>
               {/* Render subfolders */}
+              {console.log(currentFolder)}
               {currentFolder?.subFolders?.map((folder) => (
                 <TableRow
                   key={`folder-${folder.id}`}
@@ -355,7 +379,7 @@ export default function CloudVault() {
                 </button>
               </div>
 
-              <form onSubmit={handleUploadSubmit}>
+              <form onSubmit={handleUploadSubmit} enctype="multipart/form-data">
                 <div className="mb-4">
                   <label className="mb-2 block font-medium text-[#EEEEEE]">
                     Upload (Max 10 files of each 5.5 MB):
@@ -363,7 +387,7 @@ export default function CloudVault() {
                   <input
                     type="file"
                     multiple
-                    className="w-full rounded border border-[#393E46] bg-[#222831] p-2 text-[#EEEEEE]"
+                    className="w-full cursor-pointer rounded border border-[#393E46] bg-[#222831] p-2 text-[#EEEEEE]"
                     onChange={(e) => setSelectedFiles(e.target.files)}
                   />
                 </div>
