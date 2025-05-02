@@ -36,17 +36,7 @@ export default function CloudVault() {
   const [currentFolder, setCurrentFolder] = useState(null);
 
   useEffect(() => {
-    const fetchRootDetails = async () => {
-      const rootObj = await fetchFolder(user.rootId);
-
-      if (rootObj.success) {
-        setCurrentFolder(rootObj.data);
-      } else {
-        toast.error(rootObj.data);
-      }
-    };
-
-    fetchRootDetails();
+    (async () => await refreshFolder(user.rootId))();
   }, []);
 
   const [navigationPath, setNavigationPath] = useState([
@@ -60,6 +50,15 @@ export default function CloudVault() {
   // state for form inputs
   const [newFolderName, setNewFolderName] = useState("");
   const [selectedFiles, setSelectedFiles] = useState(null);
+
+  const refreshFolder = async (folderId) => {
+    try {
+      const res = await api.get(`/folder/${folderId}`);
+      setCurrentFolder(res.data);
+    } catch (error) {
+      toast.error(error?.response?.data?.msg || "Unable to fetch folder");
+    }
+  };
 
   // navigate to a folder
   const navigateToFolder = async (folder) => {
