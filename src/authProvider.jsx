@@ -85,7 +85,7 @@ const AuthProvider = ({ children }) => {
           error.response.data.msg == "Invalid or expired token"
         ) {
           try {
-            console.log("Refreshing the token...");
+            // console.log("Refreshing the token...");
             const response = await api.get("/auth/refresh");
             setToken(response.data.accessToken);
             // setUser(response.data.decoded);
@@ -95,7 +95,7 @@ const AuthProvider = ({ children }) => {
 
             return api(originalRequest);
           } catch {
-            console.log("Token refresh failed. Redirecting to login...");
+            // console.log("Token refresh failed. Redirecting to login...");
             setToken(null);
             navigate("/", { replace: true });
           }

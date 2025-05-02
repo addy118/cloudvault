@@ -38,7 +38,8 @@ export default function CloudVault() {
     const fetchRootDetails = async () => {
       try {
         const rootRes = await api.get(`/folder/${user.rootId}`);
-        console.log(rootRes.data);
+        // console.log(rootRes.data);
+
         setCurrentFolder(rootRes.data);
       } catch (error) {
         console.error("Error fetching root folder details:", error);
@@ -109,7 +110,7 @@ export default function CloudVault() {
         // `Would create folder "${newFolderName}" in folder ID: ${navigationPath[navigationPath.length - 1].id}`
         `Folder "${newFolderName}" created in folder ID: ${navigationPath[navigationPath.length - 1].id}`
       );
-      
+
       setFolderDialogOpen(false);
       setNewFolderName("");
     } catch (err) {
@@ -123,18 +124,18 @@ export default function CloudVault() {
     try {
       e.preventDefault();
       const currentFolder = navigationPath[navigationPath.length - 1];
-      console.log(currentFolder.id);
+      // console.log(currentFolder.id);
 
       // FormData obj formation
       const formData = new FormData();
       formData.append("userId", user.id);
       const filesArray = Array.from(selectedFiles);
-      console.log(filesArray);
+      // console.log(filesArray);
       filesArray.forEach((file) => {
         formData.append("files", file);
       });
 
-      console.log(formData);
+      // console.log(formData);
 
       await api.post(`file/${currentFolder.id}`, formData);
       toast.success(
@@ -243,7 +244,7 @@ export default function CloudVault() {
 
             <TableBody>
               {/* Render subfolders */}
-              {console.log(currentFolder)}
+              {/* {console.log(currentFolder)} */}
               {currentFolder?.subFolders?.map((folder) => (
                 <TableRow
                   key={`folder-${folder.id}`}
