@@ -29,6 +29,7 @@ import { formatFileSize, formatDate, getFileIcon } from "../utils/utils";
 import { toast } from "sonner";
 import api from "@/axiosInstance";
 import { useAuth } from "@/authProvider";
+import { fetchFolder } from "@/utils/fetchFolder";
 
 export default function CloudVault() {
   const { user } = useAuth();
@@ -36,13 +37,12 @@ export default function CloudVault() {
 
   useEffect(() => {
     const fetchRootDetails = async () => {
-      try {
-        const rootRes = await api.get(`/folder/${user.rootId}`);
-        // console.log(rootRes.data);
+      const rootObj = await fetchFolder(user.rootId);
 
-        setCurrentFolder(rootRes.data);
-      } catch (error) {
-        console.error("Error fetching root folder details:", error);
+      if (rootObj.success) {
+        setCurrentFolder(rootObj.data);
+      } else {
+        toast.error(rootObj.data);
       }
     };
 
@@ -139,8 +139,17 @@ export default function CloudVault() {
 
       await api.post(`file/${currentFolder.id}`, formData);
       toast.success(
-        `Uploaded ${filesArray ? filesArray.length : 0} files to folder ID: ${currentFolder.id}. Refresh to see!`
+        `Uploaded ${filesArray ? filesArray.length : 0} files to folder ID: ${currentFolder.id}.`
       );
+
+      // refresh the currect folder and re-render
+      const folderObj = await fetchFolder(currentFolder.id);
+      if (folderObj.success) {
+        setCurrentFolder(folderObj.data);
+      } else {
+        toast.error(folderObj.data);
+      }
+
       setUploadDialogOpen(false);
       setSelectedFiles(null);
     } catch (err) {
@@ -179,6 +188,14 @@ export default function CloudVault() {
       toast.success(
         `${itemType} "${item.name}" deleted successfully! Please refresh to see changes`
       );
+
+      // refresh the currect folder and re-render
+      const folderObj = await fetchFolder(currentFolder.id);
+      if (folderObj.success) {
+        setCurrentFolder(folderObj.data);
+      } else {
+        toast.error(folderObj.data);
+      }
     }
   };
 
