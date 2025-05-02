@@ -26,13 +26,13 @@ exports.getFolder = async (req, res, next) => {
 //   });
 // };
 
-exports.postNewFolder = (req, res) => {
+exports.postNewFolder = async (req, res) => {
   try {
     // current folderId
     const { folderId } = req.params;
     const { folderName, userId } = req.body;
 
-    Folder.create(folderName, Number(folderId), userId);
+    await Folder.create(folderName, Number(folderId), userId);
     // res.redirect(`/${folderId}/folder`);
     res.json({ msg: "Folder created successfully!" });
   } catch (error) {
@@ -43,7 +43,7 @@ exports.postNewFolder = (req, res) => {
 
 exports.postDeleteFolder = async (req, res) => {
   const folderId = Number(req.params.folderId);
-  const userId = Number(req.user.id);
+  const userId = Number(req.body);
 
   // const parent = await Folder.getParent(folderId);
 

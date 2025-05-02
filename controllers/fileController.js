@@ -8,9 +8,9 @@ exports.getUpload = (req, res) => {
   // res.render("fileForm", { title: "Upload Files", folderId: folderId });
 };
 
-exports.postUpload = async (req, res, next) => {
+exports.postUpload = async (req, res) => {
   const { folderId } = req.params;
-  const userId = req.user.id;
+  const { userId } = req.body;
   console.log("file uploaded");
 
   if (!req.files || req.files.length === 0) {
@@ -125,9 +125,11 @@ exports.postDownloadFile = async (req, res) => {
 
 exports.postDeleteFile = async (req, res) => {
   const fileId = Number(req.params.fileId);
-  const folderId = await File.getFolderId(fileId);
+  const { userId } = req.body;
+  // const folderId = await File.getFolderId(fileId);
   try {
-    await Supabase.removeFile(fileId, Number(req.user.id));
+    // check ownership - whether file with fileId is owned by user userId or not
+    await Supabase.removeFile(fileId, Number(userId));
     await File.deleteById(fileId);
     // res.redirect(`/${folderId}/folder`);
     res.json({ msg: "File deleted successfully!" });

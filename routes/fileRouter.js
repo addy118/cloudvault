@@ -9,9 +9,9 @@ const { uploadFiles, multerError } = require("../config/multer");
 const fileRouter = Router();
 
 // fileRouter.get("/:folderId/upload", getUpload);
-fileRouter.post("/:folderId/upload", uploadFiles, multerError, postUpload);
-fileRouter.post("/file/:userId/:folderId/:fileId/download", postDownloadFile);
+fileRouter.post("/:folderId", uploadFiles, multerError, postUpload);
+fileRouter.post("/:userId/:folderId/:fileId/download", postDownloadFile);
 
-fileRouter.post("/file/:fileId/delete", postDeleteFile);
+fileRouter.delete("/:fileId", postDeleteFile);
 
 module.exports = fileRouter;

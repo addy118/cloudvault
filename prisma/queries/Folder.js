@@ -122,7 +122,7 @@ class Folder {
 
   static async deleteById(folderId) {
     try {
-      const folder = await this.getItemsById(folderId);
+      // const folder = await this.getItemsById(folderId);
       await db.folder.delete({
         where: { id: folderId },
       });
