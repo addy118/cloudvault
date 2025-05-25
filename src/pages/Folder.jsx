@@ -29,7 +29,6 @@ import { formatFileSize, formatDate, getFileIcon } from "../utils/utils";
 import { toast } from "sonner";
 import api from "@/axiosInstance";
 import { useAuth } from "@/authProvider";
-import { fetchFolder } from "@/utils/fetchFolder";
 
 export default function CloudVault() {
   const { user } = useAuth();
@@ -110,6 +109,8 @@ export default function CloudVault() {
         `Folder "${newFolderName}" created in folder ID: ${navigationPath[navigationPath.length - 1].id}`
       );
 
+      await refreshFolder(currentFolder.id);
+
       setFolderDialogOpen(false);
       setNewFolderName("");
     } catch (err) {
@@ -142,12 +143,7 @@ export default function CloudVault() {
       );
 
       // refresh the currect folder and re-render
-      const folderObj = await fetchFolder(currentFolder.id);
-      if (folderObj.success) {
-        setCurrentFolder(folderObj.data);
-      } else {
-        toast.error(folderObj.data);
-      }
+      await refreshFolder(currentFolder.id);
 
       setUploadDialogOpen(false);
       setSelectedFiles(null);
@@ -156,7 +152,7 @@ export default function CloudVault() {
     }
   };
 
-  // Handle file download
+  // handle file download
   const handleDownload = (file) => {
     if (file.url) {
       window.open(file.url, "_blank");
@@ -165,7 +161,7 @@ export default function CloudVault() {
     }
   };
 
-  // Handle copy link
+  // handle copy link
   const handleCopyLink = (file) => {
     // In a real app, this would copy the file's URL to clipboard
     if (file.url) {
@@ -180,21 +176,16 @@ export default function CloudVault() {
     }
   };
 
-  // Handle delete
+  // handle delete
   const handleDelete = async (item, itemType) => {
     if (confirm(`Are you sure you want to delete this ${itemType}?`)) {
       await api.delete(`/${itemType}/${item.id}`, { userId: user.id });
       toast.success(
-        `${itemType} "${item.name}" deleted successfully! Please refresh to see changes`
+        `${itemType} "${item.name}" deleted successfully!`
       );
 
       // refresh the currect folder and re-render
-      const folderObj = await fetchFolder(currentFolder.id);
-      if (folderObj.success) {
-        setCurrentFolder(folderObj.data);
-      } else {
-        toast.error(folderObj.data);
-      }
+      await refreshFolder(currentFolder.id);
     }
   };
 
