@@ -2,10 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const authRouter = require("./routes/authRouter");
-const userRouter = require("./routes/userRouter");
-const fileRouter = require("./routes/fileRouter");
-const folderRouter = require("./routes/folderRouter");
+const authRouter = require("../routes/authRouter");
+const userRouter = require("../routes/userRouter");
+const fileRouter = require("../routes/fileRouter");
+const folderRouter = require("../routes/folderRouter");
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -34,3 +34,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
+module.exports = app;
