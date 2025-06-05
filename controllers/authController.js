@@ -3,14 +3,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../prisma/queries/User");
 const Folder = require("../prisma/queries/Folder");
-const {
-  ACCESS_TOKEN,
-  REFRESH_TOKEN,
-  SECURE_DEV,
-  SAME_SITE_DEV,
-  SECURE_PROD,
-  SAME_SITE_PROD,
-} = process.env;
+const { ACCESS_TOKEN, REFRESH_TOKEN, IS_PROD } = process.env;
+const isProd = IS_PROD == "true" ? true : false;
 
 exports.postSignup = async (req, res) => {
   const { name, username, email, password } = req.body;
@@ -60,8 +54,8 @@ exports.postLogin = async (req, res) => {
     // send set-cookie header with response
     res.cookie("refreshCookie", refreshToken, {
       httpOnly: true,
-      secure: SECURE_DEV, // true in production (only send over https)
-      sameSite: SAME_SITE_DEV, // None in prod, Lax in dev
+      secure: isProd, // true in production (only send over https)
+      sameSite: isProd ? "None" : "Lax", // None in prod, Lax in dev
     });
 
     const decoded = jwt.verify(accessToken, ACCESS_TOKEN);
@@ -77,8 +71,8 @@ exports.postLogout = async (req, res) => {
   try {
     res.clearCookie("refreshCookie", {
       httpOnly: true,
-      secure: SECURE_DEV, // true in production (only send over https)
-      sameSite: SAME_SITE_DEV, // None in prod, Lax in dev
+      secure: isProd, // true in production (only send over https)
+      sameSite: isProd ? "None" : "Lax", // None in prod, Lax in dev
     });
     res.status(200).json({ msg: "Logged out successfully" });
   } catch (error) {
@@ -141,8 +135,8 @@ exports.refresh = async (req, res) => {
 
     res.cookie("refreshCookie", refreshToken, {
       httpOnly: true,
-      secure: SECURE_DEV, // true in production (only send over https)
-      sameSite: SAME_SITE_DEV, // None in prod, Lax in dev
+      secure: isProd, // true in production (only send over https)
+      sameSite: isProd ? "None" : "Lax", // None in prod, Lax in dev
     });
 
     res.json({ msg: "Tokens Regenerated", accessToken });
