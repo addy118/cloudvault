@@ -25,6 +25,14 @@ app.use("/user", userRouter);
 app.use("/file", fileRouter);
 app.use("/folder", folderRouter);
 
+app.get("ping", (req, res) => {
+  res.send("pong");
+});
+
+app.get("/", (req, res) => {
+  res.send("Welcome to Cloudvault!");
+});
+
 app.use((err, req, res, next) => {
   console.error(err.message);
   console.error(err.stack);
