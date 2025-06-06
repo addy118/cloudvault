@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  ChevronRight,
-  Folder,
-  Upload,
-  FolderPlus,
-  Download,
-  Link,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Upload, FolderPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -18,29 +9,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { formatFileSize, formatDate, getFileIcon } from "../utils/utils";
 import { toast } from "sonner";
 import api from "@/axiosInstance";
 import { useAuth } from "@/authProvider";
+import BreadCrumbNav from "@/components/BreadCrumbNav";
+import RenderFolder from "@/components/RenderFolders";
+import RenderFiles from "@/components/RenderFiles";
+import UploadDialog from "@/components/UploadDialog";
+import FolderDialog from "@/components/FolderDialog";
 
 export default function CloudVault() {
   const { user } = useAuth();
   const [currentFolder, setCurrentFolder] = useState(null);
-
-  useEffect(() => {
-    (async () => await refreshFolder(user.rootId))();
-  }, []);
-
   const [navigationPath, setNavigationPath] = useState([
     { id: user.rootId, name: "Root" },
   ]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // state for dialogs
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -50,7 +34,9 @@ export default function CloudVault() {
   const [newFolderName, setNewFolderName] = useState("");
   const [selectedFiles, setSelectedFiles] = useState(null);
 
-  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    (async () => await refreshFolder(user.rootId))();
+  }, []);
 
   const refreshFolder = async (folderId) => {
     try {
@@ -211,29 +197,12 @@ export default function CloudVault() {
     <div className="min-h-screen bg-[#222831] text-[#EEEEEE]">
       <div className="container mx-auto max-w-7xl p-4">
         {/* Breadcrumb Navigation */}
-        <Breadcrumb className="mb-6">
-          <BreadcrumbList>
-            {navigationPath.map((folder, index) => (
-              <React.Fragment key={folder.id}>
-                {index > 0 && (
-                  <BreadcrumbSeparator className="text-[#FFD369]">
-                    <ChevronRight size={16} />
-                  </BreadcrumbSeparator>
-                )}
-                <BreadcrumbItem>
-                  <BreadcrumbLink
-                    onClick={() => navigateToPath(index)}
-                    className="cursor-pointer text-[#EEEEEE] hover:text-[#FFD369]"
-                  >
-                    {folder.name}
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-              </React.Fragment>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
+        <BreadCrumbNav
+          navigationPath={navigationPath}
+          navigateToPath={navigateToPath}
+        />
 
-        {/* Control Buttons */}
+        {/* control buttons */}
         <div className="mb-6 flex flex-wrap gap-4">
           <Button
             onClick={() => setUploadDialogOpen(true)}
@@ -268,110 +237,28 @@ export default function CloudVault() {
             </TableHeader>
 
             <TableBody>
-              {/* Render subfolders */}
+              {/* render subfolders */}
               {console.log(currentFolder)}
               {currentFolder?.subFolders?.map((folder) => (
-                <TableRow
-                  key={`folder-${folder.id}`}
-                  className="border-b-[#393E46] hover:bg-[#393E46]/30"
-                >
-                  <TableCell className="font-medium text-[#EEEEEE]">
-                    <div className="flex items-center gap-2">
-                      <Folder size={20} className="text-[#FFD369]" />
-                      <span
-                        className="cursor-pointer hover:text-[#FFD369]"
-                        onClick={() => navigateToFolder(folder)}
-                      >
-                        {folder.name}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-[#EEEEEE]/80">Folder</TableCell>
-                  <TableCell className="text-[#EEEEEE]/80">-</TableCell>
-                  <TableCell className="text-[#EEEEEE]/80">
-                    {formatDate(folder.updatedAt)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleCopyLink(folder)}
-                        title="Copy Link"
-                        className="text-[#EEEEEE] hover:bg-[#393E46]"
-                      >
-                        <Link size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(folder, "folder")}
-                        title="Delete"
-                        className="text-red-400 hover:bg-[#393E46]"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <RenderFolder
+                  folder={folder}
+                  navigateToFolder={navigateToFolder}
+                  handleCopyLink={handleCopyLink}
+                  handleDelete={handleDelete}
+                />
               ))}
 
-              {/* Render files */}
+              {/* render files */}
               {currentFolder?.files?.map((file) => (
-                <TableRow
-                  key={`file-${file.id}`}
-                  className="border-b-[#393E46] hover:bg-[#393E46]/30"
-                >
-                  <TableCell className="font-medium text-[#EEEEEE]">
-                    <div className="flex items-center gap-2">
-                      {getFileIcon(file.type)}
-                      <span>{file.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-[#EEEEEE]/80">
-                    {file.type.toUpperCase()}
-                  </TableCell>
-                  <TableCell className="text-[#EEEEEE]/80">
-                    {formatFileSize(file.size)}
-                  </TableCell>
-                  <TableCell className="text-[#EEEEEE]/80">
-                    {formatDate(file.updatedAt)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDownload(file)}
-                        title="Download"
-                        className="text-[#EEEEEE] hover:bg-[#393E46]"
-                      >
-                        <Download size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleCopyLink(file)}
-                        title="Copy Link"
-                        className="text-[#EEEEEE] hover:bg-[#393E46]"
-                      >
-                        <Link size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(file, "file")}
-                        title="Delete"
-                        className="text-red-400 hover:bg-[#393E46]"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <RenderFiles
+                  file={file}
+                  handleCopyLink={handleCopyLink}
+                  handleDelete={handleDelete}
+                  handleDownload={handleDownload}
+                />
               ))}
 
-              {/* Show message if folder is empty */}
+              {/* show message if folder is empty */}
               {(!currentFolder?.subFolders ||
                 currentFolder?.subFolders.length === 0) &&
                 (!currentFolder?.files ||
@@ -389,103 +276,24 @@ export default function CloudVault() {
           </Table>
         </div>
 
-        {/* Upload File Dialog */}
+        {/* upload file dialog */}
         {uploadDialogOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-            <div className="w-full max-w-md rounded-lg border border-[#393E46] bg-[#222831] p-6 text-[#EEEEEE]">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#FFD369]">
-                  Upload Files
-                </h2>
-                <button
-                  onClick={() => setUploadDialogOpen(false)}
-                  className="text-[#EEEEEE]/70 hover:text-[#FFD369]"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <form onSubmit={handleUploadSubmit} enctype="multipart/form-data">
-                <div className="mb-4">
-                  <label className="mb-2 block font-medium text-[#EEEEEE]">
-                    Upload (Max 10 files of each 5.5 MB):
-                  </label>
-                  <input
-                    type="file"
-                    multiple
-                    className="w-full cursor-pointer rounded border border-[#393E46] bg-[#222831] p-2 text-[#EEEEEE]"
-                    onChange={(e) => setSelectedFiles(e.target.files)}
-                  />
-                </div>
-
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setUploadDialogOpen(false)}
-                    className="rounded border border-[#393E46] px-4 py-2 text-[#EEEEEE] hover:bg-[#393E46]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="rounded bg-[#FFD369] px-4 py-2 font-medium text-[#222831] hover:bg-[#FFD369]/90"
-                  >
-                    {isLoading ? "Uploading..." : "Upload"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <UploadDialog
+            setSelectedFiles={setSelectedFiles}
+            setUploadDialogOpen={setUploadDialogOpen}
+            handleUploadSubmit={handleUploadSubmit}
+            isLoading={isLoading}
+          />
         )}
 
-        {/* Create Folder Dialog */}
+        {/* create folder dialog */}
         {folderDialogOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-            <div className="w-full max-w-md rounded-lg border border-[#393E46] bg-[#222831] p-6 text-[#EEEEEE]">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#FFD369]">
-                  Create New Folder
-                </h2>
-                <button
-                  onClick={() => setFolderDialogOpen(false)}
-                  className="text-[#EEEEEE]/70 hover:text-[#FFD369]"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <form onSubmit={handleCreateFolderSubmit}>
-                <div className="mb-4">
-                  <label className="mb-2 block font-medium text-[#EEEEEE]">
-                    Folder Name:
-                  </label>
-                  <input
-                    type="text"
-                    value={newFolderName}
-                    onChange={(e) => setNewFolderName(e.target.value)}
-                    className="w-full rounded border border-[#393E46] bg-[#222831] p-2 text-[#EEEEEE]"
-                    required
-                  />
-                </div>
-
-                <div className="flex justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setFolderDialogOpen(false)}
-                    className="rounded border border-[#393E46] px-4 py-2 text-[#EEEEEE] hover:bg-[#393E46]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="rounded bg-[#FFD369] px-4 py-2 font-medium text-[#222831] hover:bg-[#FFD369]/90"
-                  >
-                    Create
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <FolderDialog
+            newFolderName={newFolderName}
+            setNewFolderName={setNewFolderName}
+            setFolderDialogOpen={setFolderDialogOpen}
+            handleCreateFolderSubmit={handleCreateFolderSubmit}
+          />
         )}
       </div>
     </div>
