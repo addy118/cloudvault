@@ -2,16 +2,11 @@ const File = require("../prisma/queries/File");
 const supabase = require("../config/supabase");
 const Supabase = require("../prisma/queries/Supabase");
 
-// upload file form
-exports.getUpload = (req, res) => {
-  const { folderId } = req.params;
-  // res.render("fileForm", { title: "Upload Files", folderId: folderId });
-};
-
+// file/:folderId
 exports.postUpload = async (req, res) => {
   const { folderId } = req.params;
   const { userId } = req.body;
-  console.log("file uploaded");
+  // console.log("file uploaded");
 
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ msg: "No files uploaded!" });
@@ -85,6 +80,7 @@ exports.postUpload = async (req, res) => {
   }
 };
 
+// file/:userId/:folderId/:fileId/download
 exports.postDownloadFile = async (req, res) => {
   const { userId, folderId, fileId } = req.params;
 
@@ -123,12 +119,15 @@ exports.postDownloadFile = async (req, res) => {
   }
 };
 
+// file/:userId/:fileId
 exports.postDeleteFile = async (req, res) => {
   const fileId = Number(req.params.fileId);
   const { userId } = req.body;
   // const folderId = await File.getFolderId(fileId);
   try {
     // check ownership - whether file with fileId is owned by user userId or not
+    // console.log(userId);
+    // console.log(Number(userId));
     await Supabase.removeFile(fileId, Number(userId));
     await File.deleteById(fileId);
     // res.redirect(`/${folderId}/folder`);

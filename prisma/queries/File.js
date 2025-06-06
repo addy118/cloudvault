@@ -9,12 +9,12 @@ class File {
     } catch (error) {
       // check if the error is a P2002 unique constraint violation
       if (error.code === "P2002" && error.meta?.target?.includes("name")) {
-        throw new Error(
-          "File with the same name already exists in this folder for the user."
-        );
-      }
-      // rethrow other errors
-      throw error;
+        this.create(`${name}_copy`, folderId, type, size, userId, url);
+        // throw new Error(
+        //   "File with the same name already exists in this folder for the user."
+        // );
+      } // rethrow other errors
+      else throw new Error("Error creating file.");
     }
   }
 
