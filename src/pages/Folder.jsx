@@ -50,6 +50,8 @@ export default function CloudVault() {
   const [newFolderName, setNewFolderName] = useState("");
   const [selectedFiles, setSelectedFiles] = useState(null);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const refreshFolder = async (folderId) => {
     try {
       const res = await api.get(`/folder/${folderId}`);
@@ -89,7 +91,7 @@ export default function CloudVault() {
 
       // get the folder details using folder.id
       const folderRes = await api.get(`/folder/${folder.id}`);
-      setCurrentFolder(folderRes);
+      setCurrentFolder(folderRes.data);
     }
   };
 
@@ -97,7 +99,7 @@ export default function CloudVault() {
   const handleCreateFolderSubmit = async (e) => {
     try {
       e.preventDefault();
-      // In a real app, this would create a new folder on the server
+
       const currFolderId = navigationPath[navigationPath.length - 1].id;
       const newFolderRes = await api.post(`/folder/${currFolderId}`, {
         folderName: newFolderName,
@@ -106,7 +108,7 @@ export default function CloudVault() {
 
       toast.success(
         // `Would create folder "${newFolderName}" in folder ID: ${navigationPath[navigationPath.length - 1].id}`
-        `Folder "${newFolderName}" created in folder ID: ${navigationPath[navigationPath.length - 1].id}`
+        `Folder ${newFolderName} created in ${navigationPath[navigationPath.length - 1].name} folder.`
       );
 
       await refreshFolder(currentFolder.id);
@@ -123,6 +125,8 @@ export default function CloudVault() {
   const handleUploadSubmit = async (e) => {
     try {
       e.preventDefault();
+      setIsLoading(true);
+
       const currentFolder = navigationPath[navigationPath.length - 1];
       // console.log(currentFolder.id);
 
@@ -135,20 +139,23 @@ export default function CloudVault() {
         formData.append("files", file);
       });
 
-      // console.log(formData);
+      console.log(formData);
 
       await api.post(`file/${currentFolder.id}`, formData);
       toast.success(
-        `Uploaded ${filesArray ? filesArray.length : 0} files to folder ID: ${currentFolder.id}.`
+        `Uploaded ${filesArray ? filesArray.length : 0} files to ${currentFolder.name} folder.`
       );
 
       // refresh the currect folder and re-render
       await refreshFolder(currentFolder.id);
 
-      setUploadDialogOpen(false);
       setSelectedFiles(null);
+      setUploadDialogOpen(false);
     } catch (err) {
+      console.error(err);
       toast.error(err?.response?.data?.msg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -179,13 +186,24 @@ export default function CloudVault() {
   // handle delete
   const handleDelete = async (item, itemType) => {
     if (confirm(`Are you sure you want to delete this ${itemType}?`)) {
-      await api.delete(`/${itemType}/${item.id}`, { userId: user.id });
-      toast.success(
-        `${itemType} "${item.name}" deleted successfully!`
-      );
+      try {
+        console.log("deleting...");
 
-      // refresh the currect folder and re-render
-      await refreshFolder(currentFolder.id);
+        // handle delete file/folder
+        console.log(`/${itemType}/${item.id}`);
+        console.log(user.id);
+        // we need to send the body as { data: <your body as obj> } when sending delete req by axios
+        await api.delete(`/${itemType}/${item.id}`, {
+          data: { userId: user.id },
+        });
+
+        toast.success(`${itemType} ${item.name} deleted successfully!`);
+        // refresh the currect folder and re-render
+        await refreshFolder(currentFolder.id);
+      } catch (err) {
+        console.log("Error msg: ", err?.response?.data?.msg);
+        toast.error(err?.response?.data?.msg);
+      }
     }
   };
 
@@ -251,7 +269,7 @@ export default function CloudVault() {
 
             <TableBody>
               {/* Render subfolders */}
-              {/* {console.log(currentFolder)} */}
+              {console.log(currentFolder)}
               {currentFolder?.subFolders?.map((folder) => (
                 <TableRow
                   key={`folder-${folder.id}`}
@@ -412,7 +430,7 @@ export default function CloudVault() {
                     type="submit"
                     className="rounded bg-[#FFD369] px-4 py-2 font-medium text-[#222831] hover:bg-[#FFD369]/90"
                   >
-                    Upload
+                    {isLoading ? "Uploading..." : "Upload"}
                   </button>
                 </div>
               </form>
