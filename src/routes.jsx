@@ -27,7 +27,6 @@ const router = createBrowserRouter([
       {
         element: <ProtectedRoute />,
         children: [
-          // { path: "root", element: <CloudVault /> },
           { path: "home", element: <CloudVault /> },
           { path: "profile", element: <Profile /> },
         ],
