@@ -95,7 +95,7 @@ export default function Layout() {
       <footer className="relative overflow-hidden border-t border-[#393E46] bg-[#222831]/90 px-6 py-6 backdrop-blur-sm md:py-8">
         <div className="relative mx-auto max-w-6xl">
           <div className="text-center text-sm text-[#EEEEEE]/70">
-            <p>© {currentYear} CloudVault. All rights reserved.</p>
+            <p>© {currentYear} Cloudvault. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useAuth } from "./authProvider";
 import { useNavigate } from "react-router-dom";
 import LandingPage from "./components/LandingPage";
-import LoginPage from "./pages/Login";
 
 export default function App() {
   const { isAuth } = useAuth();
