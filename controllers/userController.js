@@ -13,6 +13,7 @@ exports.test = async (req, res) => {
   }
 };
 
+// user/:userId/protected
 exports.testProtected = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -25,6 +26,7 @@ exports.testProtected = async (req, res) => {
   }
 };
 
+// user/:userId
 exports.getUser = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -37,6 +39,7 @@ exports.getUser = async (req, res) => {
   }
 };
 
+// user/:userId/info
 exports.getUserInfo = async (req, res) => {
   const { userId } = req.params;
   try {
@@ -49,6 +52,7 @@ exports.getUserInfo = async (req, res) => {
   }
 };
 
+// user/:userId/name
 exports.putUserName = async (req, res) => {
   const { userId } = req.params;
   const { name } = req.body;
@@ -62,6 +66,7 @@ exports.putUserName = async (req, res) => {
   }
 };
 
+// user/:userId/email
 exports.putUserEmail = async (req, res) => {
   const { userId } = req.params;
   const { email } = req.body;
@@ -75,6 +80,7 @@ exports.putUserEmail = async (req, res) => {
   }
 };
 
+// user/:userId/username
 exports.putUserUserName = async (req, res) => {
   const { userId } = req.params;
   const { username } = req.body;
@@ -88,19 +94,7 @@ exports.putUserUserName = async (req, res) => {
   }
 };
 
-// exports.putUserPhone = async (req, res) => {
-//   const { userId } = req.params;
-//   const { phone } = req.body;
-
-//   try {
-//     await User.changePhone(Number(userId), phone);
-//     res.status(200).json({ msg: "Phone updated successfully!" });
-//   } catch (err) {
-//     console.error("ERROR in putUserPhone:", err);
-//     res.status(500).json({ msg: err.message });
-//   }
-// };
-
+// user/:userId/password
 exports.putUserPass = async (req, res) => {
   const { userId } = req.params;
   const { oldPass, newPass } = req.body;
@@ -121,6 +115,7 @@ exports.putUserPass = async (req, res) => {
   }
 };
 
+// user/:userId
 exports.delUser = async (req, res) => {
   try {
     await User.delete(req.user.id);
@@ -130,3 +125,17 @@ exports.delUser = async (req, res) => {
     res.status(500).json({ msg: err.message });
   }
 };
+
+// user/:userId/phone
+// exports.putUserPhone = async (req, res) => {
+//   const { userId } = req.params;
+//   const { phone } = req.body;
+
+//   try {
+//     await User.changePhone(Number(userId), phone);
+//     res.status(200).json({ msg: "Phone updated successfully!" });
+//   } catch (err) {
+//     console.error("ERROR in putUserPhone:", err);
+//     res.status(500).json({ msg: err.message });
+//   }
+// };

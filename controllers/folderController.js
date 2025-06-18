@@ -1,6 +1,7 @@
 const Folder = require("../prisma/queries/Folder");
 const Supabase = require("../prisma/queries/Supabase");
 
+// folder/:folderId
 exports.getFolder = async (req, res, next) => {
   const { folderId } = req.params;
 
@@ -15,6 +16,7 @@ exports.getFolder = async (req, res, next) => {
   res.json(folderDetails);
 };
 
+// folder/:folderId
 exports.postNewFolder = async (req, res) => {
   try {
     // current folderId
@@ -29,6 +31,7 @@ exports.postNewFolder = async (req, res) => {
   }
 };
 
+// folder/:folderId
 exports.postDeleteFolder = async (req, res) => {
   const folderId = Number(req.params.folderId);
   const { userId } = req.body;

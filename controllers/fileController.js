@@ -2,7 +2,7 @@ const File = require("../prisma/queries/File");
 const supabase = require("../config/supabase");
 const Supabase = require("../prisma/queries/Supabase");
 
-// file/:folderId
+// file/:folderId w/ middleware uploadFiles, multerError
 exports.postUpload = async (req, res) => {
   const { folderId } = req.params;
   const { userId } = req.body;
@@ -119,7 +119,7 @@ exports.postDownloadFile = async (req, res) => {
   }
 };
 
-// file/:userId/:fileId
+// file/:fileId
 exports.postDeleteFile = async (req, res) => {
   const fileId = Number(req.params.fileId);
   const { userId } = req.body;

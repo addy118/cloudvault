@@ -6,6 +6,7 @@ const Folder = require("../prisma/queries/Folder");
 const { ACCESS_TOKEN, REFRESH_TOKEN, IS_PROD } = process.env;
 const isProd = IS_PROD == "true" ? true : false;
 
+// auth/signup
 exports.postSignup = async (req, res) => {
   const { name, username, email, password } = req.body;
 
@@ -34,6 +35,7 @@ exports.postSignup = async (req, res) => {
 };
 
 // TOGGLE PROD/DEV CONFIG
+// auth/login
 exports.postLogin = async (req, res) => {
   const { data, password } = req.body;
 
@@ -67,6 +69,7 @@ exports.postLogin = async (req, res) => {
 };
 
 // TOGGLE PROD/DEV CONFIG
+// auth/logout
 exports.postLogout = async (req, res) => {
   try {
     res.clearCookie("refreshCookie", {
@@ -81,6 +84,7 @@ exports.postLogout = async (req, res) => {
   }
 };
 
+// auth/token
 exports.getToken = async (req, res) => {
   const bearerHeader = req.headers["authorization"];
   const accessToken = bearerHeader && bearerHeader.split(" ")[1];
@@ -96,21 +100,7 @@ exports.getToken = async (req, res) => {
   }
 };
 
-exports.verifyToken = (req, res, next) => {
-  const bearerHeader = req.headers["authorization"];
-  const accessToken = bearerHeader && bearerHeader.split(" ")[1];
-  if (!accessToken) return res.status(500).send("Unauthorized access!");
-
-  try {
-    const decoded = jwt.verify(accessToken, ACCESS_TOKEN);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    console.error("Error verifying access token: ", err.stack);
-    res.status(403).json({ msg: "Invalid or expired token" });
-  }
-};
-
+// auth/refresh
 exports.refresh = async (req, res) => {
   const refreshCookie = req.cookies.refreshCookie;
 
@@ -146,6 +136,23 @@ exports.refresh = async (req, res) => {
   }
 };
 
+// middleware
+exports.verifyToken = (req, res, next) => {
+  const bearerHeader = req.headers["authorization"];
+  const accessToken = bearerHeader && bearerHeader.split(" ")[1];
+  if (!accessToken) return res.status(500).send("Unauthorized access!");
+
+  try {
+    const decoded = jwt.verify(accessToken, ACCESS_TOKEN);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    console.error("Error verifying access token: ", err.stack);
+    res.status(403).json({ msg: "Invalid or expired token" });
+  }
+};
+
+// middleware
 exports.verifyOwnership = (req, res, next) => {
   const userId = Number(req.params.userId);
   if (userId !== req.user.id) {
@@ -155,6 +162,7 @@ exports.verifyOwnership = (req, res, next) => {
 };
 
 // ACCESS TOKEN CONFIG
+// util
 const generateTokens = (user) => {
   const accessToken = jwt.sign(
     {
