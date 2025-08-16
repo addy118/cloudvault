@@ -1,6 +1,0 @@
-[submodule "cloud-vault-client"]
-	path = cloud-vault-client
-	url = git@github.com:addy118/cloud-vault-client.git
-[submodule "cloud-vault-server"]
-	path = cloud-vault-server
-	url = git@github.com:addy118/cloud-vault-server.git
